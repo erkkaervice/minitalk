@@ -5,15 +5,13 @@
 #                                                     +:+ +:+         +:+      #
 #    By: eala-lah <eala-lah@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/08/20 15:47:32 by eala-lah          #+#    #+#              #
-#    Updated: 2024/10/04 13:49:44 by eala-lah         ###   ########.fr        #
+#    Created: 2024/10/04 15:36:34 by eala-lah          #+#    #+#              #
+#    Updated: 2024/10/04 16:08:45 by eala-lah         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME_SERVER = server
-NAME_CLIENT = client
-BONUS_SERVER = server_bonus
-BONUS_CLIENT = client_bonus
+NAME_SERVER  = server
+NAME_CLIENT  = client
 
 INCS        = -I ./inc/
 LIBFT_DIR   = libft/
@@ -21,56 +19,54 @@ LIBFT       = $(LIBFT_DIR)/libft.a
 
 SRC_DIR     = src/
 SRC         = \
-	server.c \
-	client.c \
-	utils.c \
-	server_bonus.c \
-	client_bonus.c \
-	utils_bonus.c
+    server.c \
+    client.c \
+    utils.c
 
+SRCS        = $(addprefix $(SRC_DIR), $(SRC))
 OBJ_DIR     = obj/
 OBJS        = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
 
 CC          = gcc
-CFLAGS      = -Wall -Wextra -Werror
+CFLAGS      = -Wall -Wextra -Werror -fPIC
+GIT_FLAGS   = git clone --depth 1
 
 all: $(OBJ_DIR) $(LIBFT) $(NAME_SERVER) $(NAME_CLIENT)
 
 $(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+	@mkdir -p $(OBJ_DIR)
+	@echo "Created object directory."
 
 $(LIBFT):
-	if [ ! -d "$(LIBFT_DIR)" ]; then \
-		git clone git@github.com:erkkaervice/libft.git $(LIBFT_DIR); \
+	@if [ ! -d "$(LIBFT_DIR)" ]; then \
+		$(GIT_FLAGS) https://github.com/erkkaervice/libft.git $(LIBFT_DIR) || exit 1; \
 	fi
-	make -C $(LIBFT_DIR) CFLAGS="-Wall -Wextra -Werror -fPIC"
+	@make -C $(LIBFT_DIR) CFLAGS="-Wall -Wextra -Werror -fPIC" 2> /dev/stderr > /dev/null
+	@echo "Libft library built."
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c inc/minitalk.h inc/minitalk_bonus.h
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c inc/minitalk.h
+	@$(CC) $(CFLAGS) $(INCS) -c $< -o $@ 2> /dev/stderr > /dev/null
+	@echo "Compiled $< into $@."
 
 $(NAME_SERVER): $(OBJ_DIR)server.o $(OBJ_DIR)utils.o
-	$(CC) $(CFLAGS) $(OBJ_DIR)server.o $(OBJ_DIR)utils.o -o $(NAME_SERVER) -L $(LIBFT_DIR) -lft
+	@$(CC) $(CFLAGS) $(OBJ_DIR)server.o $(OBJ_DIR)utils.o -o $(NAME_SERVER) -L $(LIBFT_DIR) -lft 2> /dev/stderr > /dev/null
+	@echo "Executable $(NAME_SERVER) created."
 
 $(NAME_CLIENT): $(OBJ_DIR)client.o $(OBJ_DIR)utils.o
-	$(CC) $(CFLAGS) $(OBJ_DIR)client.o $(OBJ_DIR)utils.o -o $(NAME_CLIENT) -L $(LIBFT_DIR) -lft
+	@$(CC) $(CFLAGS) $(OBJ_DIR)client.o $(OBJ_DIR)utils.o -o $(NAME_CLIENT) -L $(LIBFT_DIR) -lft 2> /dev/stderr > /dev/null
+	@echo "Executable $(NAME_CLIENT) created."
 
-bonus: $(OBJ_DIR) $(LIBFT) $(BONUS_SERVER) $(BONUS_CLIENT)
-
-$(BONUS_SERVER): $(OBJ_DIR)server_bonus.o $(OBJ_DIR)utils_bonus.o
-	$(CC) $(CFLAGS) $(OBJ_DIR)server_bonus.o $(OBJ_DIR)utils_bonus.o -o $(BONUS_SERVER) -L $(LIBFT_DIR) -lft
-
-$(BONUS_CLIENT): $(OBJ_DIR)client_bonus.o $(OBJ_DIR)utils_bonus.o
-	$(CC) $(CFLAGS) $(OBJ_DIR)client_bonus.o $(OBJ_DIR)utils_bonus.o -o $(BONUS_CLIENT) -L $(LIBFT_DIR) -lft
+bonus: all
 
 clean:
-	rm -rf $(OBJ_DIR)
-	make -C $(LIBFT_DIR) clean
+	@rm -rf $(OBJ_DIR) 2> /dev/stderr > /dev/null
+	@make -C $(LIBFT_DIR) clean 2> /dev/stderr > /dev/null
+	@echo "Cleaned up $(OBJ_DIR) and library."
 
 fclean: clean
-	rm -f $(LIBFT)
-	rm -rf $(LIBFT_DIR)
-	rm -f $(NAME_SERVER) $(NAME_CLIENT)
-	rm -f $(BONUS_SERVER) $(BONUS_CLIENT)
+	@rm -f $(LIBFT) $(NAME_SERVER) $(NAME_CLIENT) 2> /dev/stderr > /dev/null
+	@rm -rf $(LIBFT_DIR) 2> /dev/stderr > /dev/null
+	@echo "Fully cleaned up all generated files."
 
 re: fclean all
 
