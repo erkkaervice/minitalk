@@ -6,14 +6,14 @@
 #    By: eala-lah <eala-lah@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/04 15:36:34 by eala-lah          #+#    #+#              #
-#    Updated: 2024/10/07 14:11:21 by eala-lah         ###   ########.fr        #
+#    Updated: 2024/10/07 14:15:32 by eala-lah         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME_SERVER  = server
 NAME_CLIENT  = client
 
-INCS        = -I ./libft/inc/ -I ./inc/
+INCS        = -I ./inc/ -I ./libft/inc/
 LIBFT_DIR   = libft/
 LIBFT       = $(LIBFT_DIR)/libft.a
 
