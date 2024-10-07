@@ -6,14 +6,14 @@
 #    By: eala-lah <eala-lah@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/04 15:36:34 by eala-lah          #+#    #+#              #
-#    Updated: 2024/10/07 11:09:56 by eala-lah         ###   ########.fr        #
+#    Updated: 2024/10/07 11:26:37 by eala-lah         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME_SERVER  = server
 NAME_CLIENT  = client
 
-INCS        = -I ./inc/ -I ./libft/inc/
+INCS        = -I ./libft/inc/ -I ./inc/
 LIBFT_DIR   = libft/
 LIBFT       = $(LIBFT_DIR)/libft.a
 
@@ -31,7 +31,7 @@ CC          = gcc
 CFLAGS      = -Wall -Wextra -Werror -fPIC
 GIT_FLAGS   = git clone --depth 1
 
-all: $(OBJ_DIR) $(LIBFT) $(NAME_SERVER) $(NAME_CLIENT)
+all: $(LIBFT) $(OBJ_DIR) $(NAME_SERVER) $(NAME_CLIENT)
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
@@ -41,7 +41,7 @@ $(LIBFT):
 	@if [ ! -d "$(LIBFT_DIR)" ]; then \
 		$(GIT_FLAGS) https://github.com/erkkaervice/libft.git $(LIBFT_DIR) || exit 1; \
 	fi
-	@make -C $(LIBFT_DIR) CFLAGS="-Wall -Wextra -Werror -fPIC" 2> /dev/stderr > /dev/null
+	@make -C $(LIBFT_DIR) CFLAGS="-Wall -Wextra -Werror -fPIC -I ./inc/" 2> /dev/stderr > /dev/null
 	@echo "Libft library built."
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c inc/minitalk.h
