@@ -6,7 +6,7 @@
 #    By: eala-lah <eala-lah@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/04 15:36:34 by eala-lah          #+#    #+#              #
-#    Updated: 2024/10/07 14:15:32 by eala-lah         ###   ########.fr        #
+#    Updated: 2024/10/11 14:05:03 by eala-lah         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,17 +18,20 @@ LIBFT_DIR   = libft/
 LIBFT       = $(LIBFT_DIR)/libft.a
 
 SRC_DIR     = src/
-SRC         = \
+SRC_SERVER  = \
     server.c \
+    utils.c
+
+SRC_CLIENT  = \
     client.c \
     utils.c
 
-SRCS        = $(addprefix $(SRC_DIR), $(SRC))
 OBJ_DIR     = obj/
-OBJS        = $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
+OBJS_SERVER = $(addprefix $(OBJ_DIR), $(SRC_SERVER:.c=.o))
+OBJS_CLIENT = $(addprefix $(OBJ_DIR), $(SRC_CLIENT:.c=.o))
 
 CC          = gcc
-CFLAGS      = -Wall -Wextra -Werror -fPIC
+CFLAGS      = -Wall -Wextra -Werror $(INCS) -fPIC
 GIT_FLAGS   = git clone --depth 1
 
 all: $(LIBFT) $(OBJ_DIR) $(NAME_SERVER) $(NAME_CLIENT)
@@ -45,16 +48,16 @@ $(LIBFT):
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c inc/minitalk.h
 	@$(CC) $(CFLAGS) $(INCS) -c $< -o $@ 2> /dev/null || { echo "Failed to compile $<."; exit 1; }
 
-$(NAME_SERVER): $(OBJ_DIR)server.o $(OBJ_DIR)utils.o
-	@$(CC) $(CFLAGS) $(OBJ_DIR)server.o $(OBJ_DIR)utils.o -o $(NAME_SERVER) -L $(LIBFT_DIR) -lft 2> /dev/null || { echo "Failed to create executable $(NAME_SERVER)."; exit 1; }
+$(NAME_SERVER): $(OBJS_SERVER)
+	@$(CC) $(CFLAGS) $(OBJS_SERVER) -o $(NAME_SERVER) -L $(LIBFT_DIR) -lft 2> /dev/null || { echo "Failed to create executable $(NAME_SERVER)."; exit 1; }
 
-$(NAME_CLIENT): $(OBJ_DIR)client.o $(OBJ_DIR)utils.o
-	@$(CC) $(CFLAGS) $(OBJ_DIR)client.o $(OBJ_DIR)utils.o -o $(NAME_CLIENT) -L $(LIBFT_DIR) -lft 2> /dev/null || { echo "Failed to create executable $(NAME_CLIENT)."; exit 1; }
+$(NAME_CLIENT): $(OBJS_CLIENT)
+	@$(CC) $(CFLAGS) $(OBJS_CLIENT) -o $(NAME_CLIENT) -L $(LIBFT_DIR) -lft 2> /dev/null || { echo "Failed to create executable $(NAME_CLIENT)."; exit 1; }
 
 bonus: all
 
 clean:
-	@rm -rf $(OBJ_DIR) 2> /dev/null || { echo "Failed to remove object directory."; }
+	@rm -rf $(OBJ_DIR) 2> /dev/null || { echo "Failed to clean object files." >&2; }
 	@make -C $(LIBFT_DIR) clean > /dev/null 2>&1 || { echo "Failed to clean libft."; }
 
 fclean: clean
