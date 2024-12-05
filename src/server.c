@@ -6,14 +6,34 @@
 /*   By: eala-lah <eala-lah@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 15:49:20 by eala-lah          #+#    #+#             */
-/*   Updated: 2024/09/16 12:31:43 by eala-lah         ###   ########.fr       */
+/*   Updated: 2024/12/05 14:19:15 by eala-lah         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
+/*
+ * g_pid - Tracks the current client process communicating with the server.
+ *
+ * This volatile variable is set to the PID of the client that initiates
+ * communication. It prevents the server from processing signals from
+ * multiple clients simultaneously.
+ */
 volatile sig_atomic_t	g_pid = 0;
 
+/*
+ * ft_buffer - Manages dynamic message buffering.
+ *
+ * This function appends a character to a dynamic buffer. If the buffer is
+ * full, it reallocates memory to double its size. The function maintains the
+ * current index and buffer size for efficient storage.
+ *
+ * Parameters:
+ * - chr: The character to append to the buffer.
+ * - ind: Pointer to the current index in the buffer.
+ * - bsize: Pointer to the current buffer size.
+ * - buf: Double pointer to the buffer.
+ */
 void	ft_buffer(int chr, int *ind, int *bsize, char **buf)
 {
 	int		i;
@@ -40,6 +60,19 @@ void	ft_buffer(int chr, int *ind, int *bsize, char **buf)
 	(*ind)++;
 }
 
+/*
+ * ft_endmsg - Finalizes and prints the received message.
+ *
+ * Once the null character is received, this function terminates the message,
+ * writes it to the standard output, and resets the buffer for the next
+ * message. It also acknowledges the client.
+ *
+ * Parameters:
+ * - buf: Double pointer to the buffer containing the message.
+ * - ind: Pointer to the current index in the buffer.
+ * - bsize: Pointer to the buffer size.
+ * - pid: The PID of the client to acknowledge.
+ */
 static void	ft_endmsg(char **buf, int *ind, int *bsize, pid_t pid)
 {
 	if (*buf)
@@ -56,6 +89,18 @@ static void	ft_endmsg(char **buf, int *ind, int *bsize, pid_t pid)
 	g_pid = 0;
 }
 
+/*
+ * ft_process - Handles a character by appending it to the buffer or finalizing
+ * the message.
+ *
+ * If the character is not null, it is added to the buffer. If it is null,
+ * the message is finalized and printed. The function also manages memory for
+ * the buffer as needed.
+ *
+ * Parameters:
+ * - chr: The character to process.
+ * - pid: The PID of the client to acknowledge.
+ */
 void	ft_process(int chr, pid_t pid)
 {
 	static char	*buf = NULL;
@@ -74,6 +119,18 @@ void	ft_process(int chr, pid_t pid)
 		ft_buffer(chr, &ind, &bsize, &buf);
 }
 
+/*
+ * ft_receive - Signal handler for receiving and assembling characters.
+ *
+ * This function interprets incoming signals as bits, constructs characters,
+ * and processes them. It maintains synchronization by acknowledging each
+ * received bit to the client.
+ *
+ * Parameters:
+ * - sig: The received signal (SIGUSR1 or SIGUSR2).
+ * - info: Signal metadata, including the sender's PID.
+ * - birds: Unused parameter (required by signal handler signature).
+ */
 void	ft_receive(int sig, siginfo_t *info, void *birds)
 {
 	static int		chr = 0;
@@ -99,6 +156,16 @@ void	ft_receive(int sig, siginfo_t *info, void *birds)
 		ft_error("PROBLEM WITH SIGNAL, TRY TELEGRAM\n");
 }
 
+/*
+ * main - Initializes the server and handles incoming messages.
+ *
+ * The function displays the server's PID, sets up signal handlers, and enters
+ * an infinite loop to process incoming signals. Signals are handled by
+ * `ft_receive`, which assembles and processes the message.
+ *
+ * Returns:
+ * - 0 on successful execution (never exits as the server runs indefinitely).
+ */
 int	main(void)
 {
 	struct sigaction	sa;
