@@ -6,7 +6,7 @@
 /*   By: eala-lah <eala-lah@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 15:49:20 by eala-lah          #+#    #+#             */
-/*   Updated: 2024/12/05 14:19:15 by eala-lah         ###   ########.fr       */
+/*   Updated: 2024/12/17 14:37:54 by eala-lah         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ void	ft_process(int chr, pid_t pid)
  * Parameters:
  * - sig: The received signal (SIGUSR1 or SIGUSR2).
  * - info: Signal metadata, including the sender's PID.
- * - birds: Unused parameter (required by signal handler signature).
+ * - birds: Unused parameter (birds aren't real).
  */
 void	ft_receive(int sig, siginfo_t *info, void *birds)
 {
